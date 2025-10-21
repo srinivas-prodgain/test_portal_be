@@ -30,9 +30,9 @@ const register_routes = (app_instance: Express): void => {
         });
     });
 
-    app_instance.use("/api/candidates", candidates_router);
-    app_instance.use("/api/questions", questions_router);
-    app_instance.use("/api/attempts", attempts_router);
+    app_instance.use("/api/v1/candidates", candidates_router);
+    app_instance.use("/api/v1/questions", questions_router);
+    app_instance.use("/api/v1/attempts", attempts_router);
 };
 
 const register_error_handlers = (app_instance: Express): void => {
