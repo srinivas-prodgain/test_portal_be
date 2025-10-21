@@ -75,27 +75,18 @@ const submit_attempt = async (req: Request, res: Response): Promise<Response> =>
     const { answers } = z_submit_attempt_body.parse(req.body);
     const attempt = await find_attempt_or_throw(attempt_id);
 
-    const now = new Date();
-
-    if (now >= attempt.endsAt) {
-        attempt.status = "expired";
-        attempt.durationSec = Math.floor((now.getTime() - attempt.startAt.getTime()) / 1000);
-        await attempt.save();
-
-        return res.status(409).json({
-            message: "Time up—attempt expired.",
-        });
-    }
-
     if (attempt.status !== "running") {
         return res.status(409).json({
             message: "Attempt is not active",
         });
     }
 
+    const now = new Date();
+    const final_status = now >= attempt.endsAt ? "terminated" : "submitted";
+
     // Update attempt with all answers at once
     attempt.answers = answers;
-    attempt.status = "submitted";
+    attempt.status = final_status;
     attempt.durationSec = Math.floor((now.getTime() - attempt.startAt.getTime()) / 1000);
     await attempt.save();
 
@@ -107,25 +98,24 @@ const register_event = async (req: Request, res: Response): Promise<Response> =>
     const { answers } = z_event_body.parse(req.body);
     const attempt = await find_attempt_or_throw(attempt_id);
 
+    if (attempt.status !== "running") {
+        return res.status(200).json({
+            action: attempt.status,
+        });
+    }
+
     const now = new Date();
 
     if (now >= attempt.endsAt) {
-        attempt.status = "expired";
+        attempt.status = "terminated";
         attempt.durationSec = Math.floor((now.getTime() - attempt.startAt.getTime()) / 1000);
-        // Save answers if provided, even when expired
         if (answers && answers.length > 0) {
             attempt.answers = answers;
         }
         await attempt.save();
 
-        return res.status(409).json({
-            action: "expired",
-        });
-    }
-
-    if (attempt.status !== "running") {
         return res.status(200).json({
-            action: attempt.status,
+            action: "terminate",
         });
     }
 
