@@ -1,8 +1,8 @@
-import { Router } from "express";
+import { Router } from 'express'
 
-import { async_handler } from "../middlewares/async_handler";
-import { get_questions } from "../controllers/questions/get-questions";
+import { get_questions } from '../controllers/questions/get-questions'
+import { async_handler } from '../middlewares/async_handler'
 
-export const questions_router = Router();
+export const questions_router = Router()
 
-questions_router.get("/", async_handler(get_questions));
+questions_router.get('/', async_handler(get_questions))
