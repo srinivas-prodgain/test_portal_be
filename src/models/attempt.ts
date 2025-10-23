@@ -5,7 +5,7 @@ export type TAttemptAnswer = {
   answers: string
 }
 
-export type TAttemptStatus = 'running' | 'submitted' | 'terminated'
+export type TAttemptStatus = 'running' | 'submitted' | 'auto_submitted' | 'terminated'
 
 export type TAttempt = {
   _id: Types.ObjectId
@@ -44,7 +44,7 @@ const attempt_schema = new Schema<TAttempt>(
     },
     status: {
       type: String,
-      enum: ['running', 'submitted', 'terminated'],
+      enum: ['running', 'submitted', 'auto_submitted', 'terminated'],
       required: true,
       default: 'running'
     },

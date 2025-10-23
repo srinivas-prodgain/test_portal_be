@@ -10,10 +10,10 @@ const z_create_attempt_body = z.object({
 })
 
 export const create_attempt = async (
-  { body }: Request,
+  req: Request,
   res: Response
 ): Promise<Response> => {
-  const { candidate_id } = z_create_attempt_body.parse(body)
+  const { candidate_id } = z_create_attempt_body.parse(req.body)
   const start_at = new Date()
   const ends_at = new Date(start_at.getTime() + exam_duration_ms)
 

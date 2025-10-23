@@ -17,10 +17,10 @@ const z_create_candidate_body = z.object({
 })
 
 export const create_candidate = async (
-  { body }: Request,
+  req: Request,
   res: Response
 ): Promise<Response> => {
-  const payload = z_create_candidate_body.parse(body)
+  const payload = z_create_candidate_body.parse(req.body)
 
   try {
     const candidate = await mg.Candidate.create(payload)

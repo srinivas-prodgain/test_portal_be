@@ -4,7 +4,7 @@ import { HydratedDocument } from 'mongoose'
 import z from 'zod'
 
 import { mg } from '../../models'
-import { TAttempt } from '../../models/attempt'
+import { TAttempt, TAttemptStatus } from '../../models/attempt'
 import { throw_error } from '../../utils/throw-error'
 
 const z_attempt_id_params = z.object({
@@ -19,7 +19,8 @@ const z_submit_attempt_body = z.object({
         answers: z.string().optional().default('')
       })
     )
-    .optional()
+    .optional(),
+  is_auto_submit: z.boolean().optional().default(false)
 })
 
 export const submit_attempt = async (
@@ -27,7 +28,7 @@ export const submit_attempt = async (
   res: Response
 ): Promise<Response> => {
   const { attempt_id } = z_attempt_id_params.parse(req.params)
-  const { answers } = z_submit_attempt_body.parse(req.body)
+  const { answers, is_auto_submit } = z_submit_attempt_body.parse(req.body)
   const attempt = (await mg.Attempt.findById(
     attempt_id
   )) as HydratedDocument<TAttempt>
@@ -43,7 +44,16 @@ export const submit_attempt = async (
   }
 
   const now = new Date()
-  const final_status = now >= attempt.ends_at ? 'terminated' : 'submitted'
+  const is_time_expired = now >= attempt.ends_at
+
+  let final_status: TAttemptStatus
+  if (is_auto_submit && is_time_expired) {
+    final_status = 'auto_submitted'
+  } else if (is_time_expired) {
+    final_status = 'terminated'
+  } else {
+    final_status = 'submitted'
+  }
 
   // Only update answers if provided (for backward compatibility)
   if (answers && answers.length > 0) {
