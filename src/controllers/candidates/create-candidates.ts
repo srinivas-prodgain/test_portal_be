@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { mg } from '../../models'
 import { throw_error } from '../../utils/throw-error'
+import { TApiResponse } from '../../types/api'
 
 type TMongoServerError = Error & {
   code?: number
@@ -25,9 +26,13 @@ export const create_candidate = async (
   try {
     const candidate = await mg.Candidate.create(payload)
 
-    return res.status(201).json({
-      candidate_id: candidate._id.toString()
-    })
+    const response: TApiResponse<{ candidate_id: string }> = {
+      message: 'Candidate created successfully',
+      data: {
+        candidate_id: candidate._id.toString()
+      }
+    }
+    return res.status(201).json(response)
   } catch (error) {
     const mongo_error = error as TMongoServerError
 

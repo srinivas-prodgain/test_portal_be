@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { mg } from '../../models'
 import { TAttempt } from '../../models/attempt'
 import { throw_error } from '../../utils/throw-error'
+import { TApiResponse, TAttemptData } from '../../types/api'
 
 const z_get_attempt_query = z.object({
   candidate_id: z.string()
@@ -31,12 +32,17 @@ export const get_attempt = async (
     answers: answer.answers ?? ''
   }))
 
-  return res.status(200).json({
-    attempt_id: attempt._id.toString(),
-    start_at: attempt.start_at,
-    ends_at: attempt.ends_at,
-    status: attempt.status,
-    violation_count: attempt.violation_count,
-    answers: formatted_answers
-  })
+  const response: TApiResponse<TAttemptData> = {
+    message: 'Attempt retrieved successfully',
+    data: {
+      attempt_id: attempt._id.toString(),
+      start_at: attempt.start_at,
+      ends_at: attempt.ends_at,
+      status: attempt.status,
+      violation_count: attempt.violation_count,
+      answers: formatted_answers
+    }
+  }
+
+  return res.status(200).json(response)
 }

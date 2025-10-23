@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { mg } from '../../models'
 import { TAttempt } from '../../models/attempt'
 import { throw_error } from '../../utils/throw-error'
+import { TApiResponse, TUpdateAnswerData } from '../../types/api'
 
 const z_attempt_id_params = z.object({
   attempt_id: z.string()
@@ -32,9 +33,10 @@ export const update_answer = async (
   }
 
   if (attempt.status !== 'running') {
-    return res.status(409).json({
+    const response: TApiResponse = {
       message: 'Attempt is not active'
-    })
+    }
+    return res.status(409).json(response)
   }
 
   // Find existing answer or create new one
@@ -55,11 +57,13 @@ export const update_answer = async (
 
   await attempt.save()
 
-  return res.status(200).json({
+  const response: TApiResponse<TUpdateAnswerData> = {
     message: 'Answer updated successfully',
     data: {
       question_id,
       answers: answers ?? ''
     }
-  })
+  }
+
+  return res.status(200).json(response)
 }
