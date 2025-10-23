@@ -14,11 +14,13 @@ Backend API for Test Portal built with Node.js, Express, TypeScript, and MongoDB
 ## Setup
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Create a `.env` file:
+
 ```bash
 cp .env.example .env
 ```
@@ -26,6 +28,7 @@ cp .env.example .env
 3. Update `.env` with your configuration
 
 4. Run development server:
+
 ```bash
 npm run dev
 ```
@@ -46,4 +49,3 @@ src/
 ├── utils/           # Utility functions
 └── index.ts         # Entry point
 ```
-
