@@ -15,9 +15,6 @@ const z_event_body = z.object({
   type: z.enum([
     'window-blur',
     'window-focus-change',
-    'fullscreen-exit',
-    'copy-attempt',
-    'paste-attempt',
     'devtools-open'
   ]),
   answers: z
