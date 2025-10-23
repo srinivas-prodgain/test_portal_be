@@ -6,6 +6,7 @@ import z from 'zod'
 import { mg } from '../../models'
 import { TAttempt, TAttemptStatus } from '../../models/attempt'
 import { throw_error } from '../../utils/throw-error'
+import { TApiResponse } from '../../types/api'
 
 const z_attempt_id_params = z.object({
   attempt_id: z.string()
@@ -38,9 +39,10 @@ export const submit_attempt = async (
   }
 
   if (attempt.status !== 'running') {
-    return res.status(409).json({
+    const response: TApiResponse = {
       message: 'Attempt is not active'
-    })
+    }
+    return res.status(409).json(response)
   }
 
   const now = new Date()
@@ -68,5 +70,8 @@ export const submit_attempt = async (
   )
   await attempt.save()
 
-  return res.status(204).send()
+  const response: TApiResponse = {
+    message: 'Attempt submitted successfully'
+  }
+  return res.status(200).json(response)
 }

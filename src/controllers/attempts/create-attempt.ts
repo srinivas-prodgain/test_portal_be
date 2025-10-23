@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { exam_duration_ms } from '../../constants/exam'
 import { mg } from '../../models'
+import { TApiResponse, TAttemptData } from '../../types/api'
 
 const z_create_attempt_body = z.object({
   candidate_id: z.string()
@@ -27,9 +28,14 @@ export const create_attempt = async (
     answers: []
   })
 
-  return res.status(201).json({
-    attempt_id: attempt._id.toString(),
-    start_at: attempt.start_at,
-    ends_at: attempt.ends_at
-  })
+  const response: TApiResponse<TAttemptData> = {
+    message: 'Attempt created successfully',
+    data: {
+      attempt_id: attempt._id.toString(),
+      start_at: attempt.start_at,
+      ends_at: attempt.ends_at
+    }
+  }
+
+  return res.status(201).json(response)
 }

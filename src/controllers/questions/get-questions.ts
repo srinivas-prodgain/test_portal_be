@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 
 import { mg } from '../../models'
+import { TApiResponse, TQuestionsData } from '../../types/api'
 
 export const get_questions = async (
   _req: Request,
@@ -13,7 +14,12 @@ export const get_questions = async (
     question: question.question
   }))
 
-  return res.status(200).json({
-    questions: formatted_questions
-  })
+  const response: TApiResponse<TQuestionsData> = {
+    message: 'Questions retrieved successfully',
+    data: {
+      questions: formatted_questions
+    }
+  }
+
+  return res.status(200).json(response)
 }

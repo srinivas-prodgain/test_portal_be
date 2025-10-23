@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { mg } from '../../models'
 import { TAttempt } from '../../models/attempt'
 import { throw_error } from '../../utils/throw-error'
+import { TApiResponse, TRegisterEventData } from '../../types/api'
 
 const z_attempt_id_params = z.object({
   attempt_id: z.string()
@@ -42,9 +43,13 @@ export const register_event = async (
   }
 
   if (attempt.status !== 'running') {
-    return res.status(200).json({
-      action: attempt.status
-    })
+    const response: TApiResponse<TRegisterEventData> = {
+      message: 'Event registered',
+      data: {
+        action: attempt.status
+      }
+    }
+    return res.status(200).json(response)
   }
 
   const now = new Date()
@@ -62,9 +67,13 @@ export const register_event = async (
     }
     await attempt.save()
 
-    return res.status(200).json({
-      action: 'terminate'
-    })
+    const response: TApiResponse<TRegisterEventData> = {
+      message: 'Event registered - attempt terminated',
+      data: {
+        action: 'terminate'
+      }
+    }
+    return res.status(200).json(response)
   }
 
   attempt.violation_count += 1
@@ -80,9 +89,13 @@ export const register_event = async (
   if (attempt.violation_count === 1) {
     await attempt.save()
 
-    return res.status(200).json({
-      action: 'warn'
-    })
+    const response: TApiResponse<TRegisterEventData> = {
+      message: 'Event registered - warning issued',
+      data: {
+        action: 'warn'
+      }
+    }
+    return res.status(200).json(response)
   }
 
   attempt.status = 'terminated'
@@ -91,7 +104,11 @@ export const register_event = async (
   )
   await attempt.save()
 
-  return res.status(200).json({
-    action: 'terminate'
-  })
+  const response: TApiResponse<TRegisterEventData> = {
+    message: 'Event registered - attempt terminated',
+    data: {
+      action: 'terminate'
+    }
+  }
+  return res.status(200).json(response)
 }
