@@ -9,7 +9,7 @@ export const get_questions = async (
   const questions = await mg.Question.find({}).sort({ _id: 1 }).limit(7).lean()
 
   const formatted_questions = questions.map((question) => ({
-    id: question._id?.toString() ?? '',
+    question_id: question._id?.toString() ?? '',
     question: question.question
   }))
 

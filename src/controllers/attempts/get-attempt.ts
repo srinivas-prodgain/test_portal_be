@@ -26,12 +26,17 @@ export const get_attempt = async (
     throw_error('No active attempt found for this candidate', 404)
   }
 
+  const formatted_answers = (attempt.answers || []).map((answer) => ({
+    question_id:answer.question_id.toString(),
+    answers: answer.answers ?? ''
+  }))
+
   return res.status(200).json({
     attempt_id: attempt._id.toString(),
-    startAt: attempt.startAt,
-    endsAt: attempt.endsAt,
+    start_at: attempt.start_at,
+    ends_at: attempt.ends_at,
     status: attempt.status,
-    violationCount: attempt.violationCount,
-    answers: attempt.answers || []
+    violation_count: attempt.violation_count,
+    answers: formatted_answers
   })
 }

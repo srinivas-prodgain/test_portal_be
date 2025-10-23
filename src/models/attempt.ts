@@ -1,20 +1,20 @@
 import { Schema, Types, model } from 'mongoose'
 
 export type TAttemptAnswer = {
-  questionID: Types.ObjectId | string
+  question_id: Types.ObjectId | string
   answers: string
 }
 
-export type TAttemptStatus = 'running' | 'submitted' | 'terminated' | 'expired'
+export type TAttemptStatus = 'running' | 'submitted' | 'terminated'
 
 export type TAttempt = {
   _id: Types.ObjectId
   candidate_id: Types.ObjectId
   status: TAttemptStatus
-  durationSec: number
-  startAt: Date
-  endsAt: Date
-  violationCount: number
+  duration_sec: number
+  start_at: Date
+  ends_at: Date
+  violation_count: number
   answers: TAttemptAnswer[]
   createdAt: Date
   updatedAt: Date
@@ -22,7 +22,7 @@ export type TAttempt = {
 
 const answer_schema = new Schema<TAttemptAnswer>(
   {
-    questionID: {
+    question_id: {
       type: Schema.Types.Mixed,
       required: true
     },
@@ -44,24 +44,24 @@ const attempt_schema = new Schema<TAttempt>(
     },
     status: {
       type: String,
-      enum: ['running', 'submitted', 'terminated', 'expired'],
+      enum: ['running', 'submitted', 'terminated'],
       required: true,
       default: 'running'
     },
-    durationSec: {
+    duration_sec: {
       type: Number,
       required: true,
       default: 0
     },
-    startAt: {
+    start_at: {
       type: Date,
       required: true
     },
-    endsAt: {
+    ends_at: {
       type: Date,
       required: true
     },
-    violationCount: {
+    violation_count: {
       type: Number,
       required: true,
       default: 0

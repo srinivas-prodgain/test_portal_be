@@ -12,12 +12,14 @@ const z_attempt_id_params = z.object({
 })
 
 const z_submit_attempt_body = z.object({
-  answers: z.array(
-    z.object({
-      questionID: z.string(),
-      answers: z.string().optional().default('')
-    })
-  )
+  answers: z
+    .array(
+      z.object({
+        question_id: z.string(),
+        answers: z.string().optional().default('')
+      })
+    )
+    .optional()
 })
 
 export const submit_attempt = async (
@@ -41,13 +43,18 @@ export const submit_attempt = async (
   }
 
   const now = new Date()
-  const final_status = now >= attempt.endsAt ? 'terminated' : 'submitted'
+  const final_status = now >= attempt.ends_at ? 'terminated' : 'submitted'
 
-  // Update attempt with all answers at once
-  attempt.answers = answers
+  // Only update answers if provided (for backward compatibility)
+  if (answers && answers.length > 0) {
+    attempt.answers = answers.map((answer) => ({
+      question_id: answer.question_id,
+      answers: answer.answers ?? ''
+    }))
+  }
   attempt.status = final_status
-  attempt.durationSec = Math.floor(
-    (now.getTime() - attempt.startAt.getTime()) / 1000
+  attempt.duration_sec = Math.floor(
+    (now.getTime() - attempt.start_at.getTime()) / 1000
   )
   await attempt.save()
 

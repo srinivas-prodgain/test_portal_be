@@ -20,16 +20,16 @@ export const create_attempt = async (
   const attempt = await mg.Attempt.create({
     candidate_id,
     status: 'running',
-    durationSec: 0,
-    startAt: start_at,
-    endsAt: ends_at,
-    violationCount: 0,
+    duration_sec: 0,
+    start_at,
+    ends_at,
+    violation_count: 0,
     answers: []
   })
 
   return res.status(201).json({
     attempt_id: attempt._id.toString(),
-    startAt: attempt.startAt,
-    endsAt: attempt.endsAt
+    start_at: attempt.start_at,
+    ends_at: attempt.ends_at
   })
 }

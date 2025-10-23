@@ -23,7 +23,7 @@ const z_event_body = z.object({
   answers: z
     .array(
       z.object({
-        questionID: z.string(),
+        question_id: z.string(),
         answers: z.string().optional().default('')
       })
     )
@@ -52,13 +52,16 @@ export const register_event = async (
 
   const now = new Date()
 
-  if (now >= attempt.endsAt) {
+  if (now >= attempt.ends_at) {
     attempt.status = 'terminated'
-    attempt.durationSec = Math.floor(
-      (now.getTime() - attempt.startAt.getTime()) / 1000
+    attempt.duration_sec = Math.floor(
+      (now.getTime() - attempt.start_at.getTime()) / 1000
     )
     if (answers && answers.length > 0) {
-      attempt.answers = answers
+      attempt.answers = answers.map((answer) => ({
+        question_id: answer.question_id,
+        answers: answer.answers ?? ''
+      }))
     }
     await attempt.save()
 
@@ -67,14 +70,17 @@ export const register_event = async (
     })
   }
 
-  attempt.violationCount += 1
+  attempt.violation_count += 1
 
   // Save answers if provided (for both warning and termination)
   if (answers && answers.length > 0) {
-    attempt.answers = answers
+    attempt.answers = answers.map((answer) => ({
+      question_id: answer.question_id,
+      answers: answer.answers ?? ''
+    }))
   }
 
-  if (attempt.violationCount === 1) {
+  if (attempt.violation_count === 1) {
     await attempt.save()
 
     return res.status(200).json({
@@ -83,8 +89,8 @@ export const register_event = async (
   }
 
   attempt.status = 'terminated'
-  attempt.durationSec = Math.floor(
-    (now.getTime() - attempt.startAt.getTime()) / 1000
+  attempt.duration_sec = Math.floor(
+    (now.getTime() - attempt.start_at.getTime()) / 1000
   )
   await attempt.save()
 
