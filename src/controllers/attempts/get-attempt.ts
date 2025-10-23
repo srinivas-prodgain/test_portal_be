@@ -32,6 +32,11 @@ export const get_attempt = async (
     answers: answer.answers ?? ''
   }))
 
+  const formatted_violations = (attempt.violations || []).map((violation) => ({
+    type: violation.type,
+    timestamp: violation.timestamp
+  }))
+
   const response: TApiResponse<TAttemptData> = {
     message: 'Attempt retrieved successfully',
     data: {
@@ -40,6 +45,7 @@ export const get_attempt = async (
       ends_at: attempt.ends_at,
       status: attempt.status,
       violation_count: attempt.violation_count,
+      violations: formatted_violations,
       answers: formatted_answers
     }
   }
