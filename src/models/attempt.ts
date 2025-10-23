@@ -5,6 +5,17 @@ export type TAttemptAnswer = {
   answers: string
 }
 
+export type TViolationType =
+  | 'window-blur'
+  | 'window-focus-change'
+  | 'devtools-open'
+  | 'fullscreen'
+
+export type TAttemptViolation = {
+  type: TViolationType
+  timestamp: Date
+}
+
 export type TAttemptStatus = 'running' | 'submitted' | 'auto_submitted' | 'terminated'
 
 export type TAttempt = {
@@ -15,6 +26,7 @@ export type TAttempt = {
   start_at: Date
   ends_at: Date
   violation_count: number
+  violations: TAttemptViolation[]
   answers: TAttemptAnswer[]
   createdAt: Date
   updatedAt: Date
@@ -30,6 +42,22 @@ const answer_schema = new Schema<TAttemptAnswer>(
       type: String,
       required: false,
       default: ''
+    }
+  },
+  { _id: false }
+)
+
+const violation_schema = new Schema<TAttemptViolation>(
+  {
+    type: {
+      type: String,
+      enum: ['window-blur', 'window-focus-change', 'devtools-open', 'fullscreen'],
+      required: true
+    },
+    timestamp: {
+      type: Date,
+      required: true,
+      default: Date.now
     }
   },
   { _id: false }
@@ -65,6 +93,10 @@ const attempt_schema = new Schema<TAttempt>(
       type: Number,
       required: true,
       default: 0
+    },
+    violations: {
+      type: [violation_schema],
+      default: []
     },
     answers: {
       type: [answer_schema],

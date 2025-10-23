@@ -16,12 +16,18 @@ export type TApiErrorResponse = {
 }
 
 // Specific response types for our endpoints
+export type TAttemptViolation = {
+  type: 'window-blur' | 'window-focus-change' | 'devtools-open' | 'fullscreen'
+  timestamp: Date
+}
+
 export type TAttemptData = {
   attempt_id: string
   start_at: Date
   ends_at: Date
   status?: string
   violation_count?: number
+  violations?: TAttemptViolation[]
   answers?: Array<{
     question_id: string
     answers: string
@@ -39,6 +45,7 @@ export type TQuestionsData = {
 
 export type TRegisterEventData = {
   action: 'warn' | 'terminate' | string
+  violation_count: number
 }
 
 export type TUpdateAnswerData = {

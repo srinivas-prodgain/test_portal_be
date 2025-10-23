@@ -7,6 +7,7 @@ import { mg } from '../../models'
 import { TAttempt } from '../../models/attempt'
 import { throw_error } from '../../utils/throw-error'
 import { TApiResponse, TRegisterEventData } from '../../types/api'
+import { MAX_WARNINGS_ALLOWED } from '../../constants/exam'
 
 const z_attempt_id_params = z.object({
   attempt_id: z.string()
@@ -16,7 +17,8 @@ const z_event_body = z.object({
   type: z.enum([
     'window-blur',
     'window-focus-change',
-    'devtools-open'
+    'devtools-open',
+    'fullscreen'
   ]),
   answers: z
     .array(
@@ -33,7 +35,7 @@ export const register_event = async (
   res: Response
 ): Promise<Response> => {
   const { attempt_id } = z_attempt_id_params.parse(req.params)
-  const { answers } = z_event_body.parse(req.body)
+  const { type, answers } = z_event_body.parse(req.body)
   const attempt = (await mg.Attempt.findById(
     attempt_id
   )) as HydratedDocument<TAttempt>
@@ -46,7 +48,8 @@ export const register_event = async (
     const response: TApiResponse<TRegisterEventData> = {
       message: 'Event registered',
       data: {
-        action: attempt.status
+        action: attempt.status,
+        violation_count: attempt.violation_count
       }
     }
     return res.status(200).json(response)
@@ -70,13 +73,19 @@ export const register_event = async (
     const response: TApiResponse<TRegisterEventData> = {
       message: 'Event registered - attempt terminated',
       data: {
-        action: 'terminate'
+        action: 'terminate',
+        violation_count: attempt.violation_count
       }
     }
     return res.status(200).json(response)
   }
 
+  // Record violation with type and timestamp
   attempt.violation_count += 1
+  attempt.violations.push({
+    type,
+    timestamp: now
+  })
 
   // Save answers if provided (for both warning and termination)
   if (answers && answers.length > 0) {
@@ -86,13 +95,14 @@ export const register_event = async (
     }))
   }
 
-  if (attempt.violation_count === 1) {
+  if (attempt.violation_count <= MAX_WARNINGS_ALLOWED) {
     await attempt.save()
 
     const response: TApiResponse<TRegisterEventData> = {
-      message: 'Event registered - warning issued',
+      message: `Event registered - warning ${attempt.violation_count} of ${MAX_WARNINGS_ALLOWED} issued`,
       data: {
-        action: 'warn'
+        action: 'warn',
+        violation_count: attempt.violation_count
       }
     }
     return res.status(200).json(response)
@@ -107,7 +117,8 @@ export const register_event = async (
   const response: TApiResponse<TRegisterEventData> = {
     message: 'Event registered - attempt terminated',
     data: {
-      action: 'terminate'
+      action: 'terminate',
+      violation_count: attempt.violation_count
     }
   }
   return res.status(200).json(response)

@@ -25,6 +25,7 @@ export const create_attempt = async (
     start_at,
     ends_at,
     violation_count: 0,
+    violations: [],
     answers: []
   })
 
@@ -33,7 +34,9 @@ export const create_attempt = async (
     data: {
       attempt_id: attempt._id.toString(),
       start_at: attempt.start_at,
-      ends_at: attempt.ends_at
+      ends_at: attempt.ends_at,
+      violation_count: attempt.violation_count,
+      violations: []
     }
   }
 
